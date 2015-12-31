@@ -4,10 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -17,155 +23,200 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import modele.GestionnaireDeFichiers;
 
 public class Explorer extends JFrame {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private Container panel = getContentPane();
-	
-	ImageIcon imgPrec = new ImageIcon("flechePrecedent.png");
-	ImageIcon imgSuiv = new ImageIcon("flecheSuivant.png");
-	private JButton btnSuivant = new JButton(imgSuiv);
-	private JButton btnPrecedent = new JButton(imgPrec);
+    private Container panel = getContentPane();
 
-	private JMenuBar menu;
-	private JMenu menuFichier;
-	private JMenu menuPluginVue;
-	private JMenu menuDesactivePlugin;
-	private JMenu menuPluginAnalyse;
+    ImageIcon imgPrec = new ImageIcon("flechePrecedent.png");
+    ImageIcon imgSuiv = new ImageIcon("flecheSuivant.png");
+    private JButton btnSuivant = new JButton(imgSuiv);
+    private JButton btnPrecedent = new JButton(imgPrec);
 
-	private JMenuItem menuItemOuvrir;
-	private JMenuItem menuItemPluginCharge;
-	private JMenuItem menuItemPluginLancer;
-	private JMenuItem menuItemDesacPluginAnalyse;
-	private JMenuItem menuItemDesacPluginVue;
+    private JMenuBar menu;
+    private JMenu menuFichier;
+    private JMenu menuPluginVue;
+    private JMenu menuDesactivePlugin;
+    private JMenu menuPluginAnalyse;
 
-	private JPanel topPanel = new JPanel();
-	private JPanel panelPrincipal = new JPanel(new BorderLayout());
-	private JPanel zoneOutils = new JPanel(new FlowLayout((int) LEFT_ALIGNMENT));
-	private JPanel arbreNavigation = new JPanel(new BorderLayout());
-	private JPanel premiereLigne;
-	JSplitPane splitPane;
+    private JMenuItem menuItemOuvrir;
+    private JMenuItem menuItemPluginCharge;
+    private JMenuItem menuItemPluginLancer;
+    private JMenuItem menuItemDesacPluginAnalyse;
+    private JMenuItem menuItemDesacPluginVue;
 
-	private JTree myTree;
-	private DefaultTreeModel myModel;
-	private DefaultMutableTreeNode treeNodePrincipal;
+    private JPanel topPanel = new JPanel();
+    private JPanel panelPrincipal = new JPanel(new BorderLayout());
+    private JPanel zoneOutils = new JPanel(new FlowLayout((int) LEFT_ALIGNMENT));
+    private JPanel arbreNavigation = new JPanel(new BorderLayout());
+    private JPanel premiereLigne;
+    JSplitPane splitPane;
 
-	private JScrollPane jscpJTree = new JScrollPane();
+    private JTree myTree;
+    private DefaultTreeModel myModel;
+    private DefaultMutableTreeNode treeNodePrincipal;
 
-	public Explorer() {
-				
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("Explorateur de fichier");
-		this.setSize(800, 600);
-		this.setBackground(Color.GREEN);
+    private JScrollPane jscpJTree = new JScrollPane();
+    
+    private GestionnaireDeFichiers gestionnaireDeFichiers;
+    private JScrollPane jspListeFile;
+    private JList<File> listeFile;
 
-		topPanel.setLayout(new BorderLayout());
-		panel.add(topPanel);
+    public Explorer(GestionnaireDeFichiers gdf) {
 
-		this.createMenu();
-		this.afficherArbreNavigation();
-		this.afficherOutils();	
-		
-		premiereLigne = new JPanel(new BorderLayout());
-		premiereLigne.add(zoneOutils, BorderLayout.WEST);
-		topPanel.add(premiereLigne, BorderLayout.NORTH);
+        this.gestionnaireDeFichiers = gdf;
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setTitle("Explorateur de fichier");
+        this.setSize(800, 600);
+        this.setBackground(Color.GREEN);
 
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, arbreNavigation, panelPrincipal);
-		splitPane.setDividerLocation(150);
-		topPanel.add(splitPane);
-		
-		this.setVisible(true);
-		
-	}
+        topPanel.setLayout(new BorderLayout());
+        panel.add(topPanel);
 
-	private void createMenu() {
-		this.menu = new JMenuBar();
-		this.menuFichier = new JMenu();
-		this.menuPluginVue = new JMenu();
-		this.menuItemOuvrir = new JMenuItem();
-		this.menuItemPluginCharge = new JMenuItem();
-		this.menuItemPluginLancer = new JMenuItem();
-		this.menuDesactivePlugin = new JMenu();
-		this.menuItemDesacPluginAnalyse = new JMenuItem();
-		this.menuItemDesacPluginVue = new JMenuItem();
-		this.menuPluginAnalyse = new JMenu();
+        this.createMenu();
+        this.afficherArbreNavigation();
+        this.afficherOutils();
 
-		// menuBar
-		this.menu.add(this.menuFichier);
-		this.menu.add(this.menuPluginVue);
-		this.menu.add(this.menuDesactivePlugin);
-		this.menu.add(this.menuPluginAnalyse);
-		this.menu.setBackground(Color.gray);
+        premiereLigne = new JPanel(new BorderLayout());
+        premiereLigne.add(zoneOutils, BorderLayout.WEST);
+        topPanel.add(premiereLigne, BorderLayout.NORTH);
 
-		// fileMenu
-		this.menuFichier.setText("Fichier");
-		this.menuFichier.add(this.menuItemOuvrir);
-		this.menuFichier.add(this.menuItemPluginCharge);
-		this.menuFichier.add(this.menuItemPluginLancer);
-		this.menuFichier.addSeparator();
-		
-		// viewPluginsMenu
-		this.menuPluginVue.setText("Plugins de vue");
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, arbreNavigation, panelPrincipal);
+        splitPane.setDividerLocation(150);
+        topPanel.add(splitPane);
+        
+        this.listeFile = new JList<File>(this.gestionnaireDeFichiers.listeFiles());
+        this.listeFile.addMouseListener(new MouseEventListe());
+        this.jspListeFile = new JScrollPane(this.listeFile);
+        this.panelPrincipal.add(this.jspListeFile);
+        
+        this.setVisible(true);
 
-		// viewPluginsMenu
-		this.menuPluginAnalyse.setText("Plugins d'analyse");
+    }
 
-		// desactivatePlugin
-		this.menuDesactivePlugin.setText("Désactiver des plugins");
-		this.menuDesactivePlugin.add(this.menuItemDesacPluginAnalyse);
-		this.menuDesactivePlugin.add(this.menuItemDesacPluginVue);
+    private void createMenu() {
+        this.menu = new JMenuBar();
+        this.menuFichier = new JMenu();
+        this.menuPluginVue = new JMenu();
+        this.menuItemOuvrir = new JMenuItem();
+        this.menuItemPluginCharge = new JMenuItem();
+        this.menuItemPluginLancer = new JMenuItem();
+        this.menuDesactivePlugin = new JMenu();
+        this.menuItemDesacPluginAnalyse = new JMenuItem();
+        this.menuItemDesacPluginVue = new JMenuItem();
+        this.menuPluginAnalyse = new JMenu();
 
-		// ouvrirMenuItem
-		this.menuItemOuvrir.setText("Ouvrir");
-		
-		// loadMenuItem
-		this.menuItemPluginCharge.setText("Charger un plugin");
+        // menuBar
+        this.menu.add(this.menuFichier);
+        this.menu.add(this.menuPluginVue);
+        this.menu.add(this.menuDesactivePlugin);
+        this.menu.add(this.menuPluginAnalyse);
+        this.menu.setBackground(Color.gray);
 
-		// runPluginsMenuItem
-		this.menuItemPluginLancer.setText("Lancer les plugins chargés");
+        // fileMenu
+        this.menuFichier.setText("Fichier");
+        this.menuFichier.add(this.menuItemOuvrir);
+        this.menuFichier.add(this.menuItemPluginCharge);
+        this.menuFichier.add(this.menuItemPluginLancer);
+        this.menuFichier.addSeparator();
 
-		// desactivateTablePluginItem
-		this.menuItemDesacPluginAnalyse.setText("Plugin d'analyse");
+        // viewPluginsMenu
+        this.menuPluginVue.setText("Plugins de vue");
 
-		// Item
-		this.menuItemDesacPluginVue.setText("Plugin de vue");
+        // viewPluginsMenu
+        this.menuPluginAnalyse.setText("Plugins d'analyse");
 
-		this.setJMenuBar(this.menu);
-	}
+        // desactivatePlugin
+        this.menuDesactivePlugin.setText("Désactiver des plugins");
+        this.menuDesactivePlugin.add(this.menuItemDesacPluginAnalyse);
+        this.menuDesactivePlugin.add(this.menuItemDesacPluginVue);
 
-	private void afficherArbreNavigation() {
+        // ouvrirMenuItem
+        this.menuItemOuvrir.setText("Ouvrir");
 
-		treeNodePrincipal = new DefaultMutableTreeNode();
+        // loadMenuItem
+        this.menuItemPluginCharge.setText("Charger un plugin");
 
-		// Construction du modele de l'arbre.
-		myModel = new DefaultTreeModel(treeNodePrincipal);
+        // runPluginsMenuItem
+        this.menuItemPluginLancer.setText("Lancer les plugins chargés");
 
-		// Construction de l'arbre.
-		myTree = new JTree(myModel);
+        // desactivateTablePluginItem
+        this.menuItemDesacPluginAnalyse.setText("Plugin d'analyse");
 
-		// on rend invis
-		myTree.setRootVisible(false);
+        // Item
+        this.menuItemDesacPluginVue.setText("Plugin de vue");
 
-		jscpJTree.setViewportView(myTree);
+        this.setJMenuBar(this.menu);
+    }
 
-		arbreNavigation.add(jscpJTree);
-	}
+    private void afficherArbreNavigation() {
 
-	private void afficherOutils() {
+        treeNodePrincipal = new DefaultMutableTreeNode();
 
-		//btnPrecedent.setPreferredSize(new Dimension(40, 40));
-		zoneOutils.add(btnPrecedent);
+        // Construction du modele de l'arbre.
+        myModel = new DefaultTreeModel(treeNodePrincipal);
 
-		//btnSuivant.setPreferredSize(new Dimension(40, 40));
-		zoneOutils.add(btnSuivant);
+        // Construction de l'arbre.
+        myTree = new JTree(myModel);
 
-		btnPrecedent.setActionCommand("ancienRep");
-		btnPrecedent.setEnabled(false);
+        // on rend invis
+        myTree.setRootVisible(false);
 
-		btnSuivant.setActionCommand("nextFolder");
-		btnSuivant.setEnabled(false);
+        jscpJTree.setViewportView(myTree);
 
-	}
+        arbreNavigation.add(jscpJTree);
+    }
+
+    private void afficherOutils() {
+
+        //btnPrecedent.setPreferredSize(new Dimension(40, 40));
+        zoneOutils.add(btnPrecedent);
+
+        //btnSuivant.setPreferredSize(new Dimension(40, 40));
+        zoneOutils.add(btnSuivant);
+
+        //btnPrecedent.setActionCommand("ancienRep");
+        //btnPrecedent.setEnabled(false);
+        btnPrecedent.addActionListener(new ActionPrecedent());
+        
+        btnSuivant.setActionCommand("nextFolder");
+        btnSuivant.setEnabled(false);
+
+    }
+
+    class ActionPrecedent implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Action effectuée par ActionPrecedents");
+            gestionnaireDeFichiers.retourEnArriere();
+        }
+
+    }
+    
+    class MouseEventListe implements MouseListener {
+
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                System.out.println("Action effectuée par MouseEventListe");
+                //int index = listeFile.locationToIndex(e.getPoint());
+                gestionnaireDeFichiers.setFileActuel(listeFile.getSelectedValue());
+            }
+        }
+
+        public void mousePressed(MouseEvent e) {
+        }
+
+        public void mouseReleased(MouseEvent e) {
+        }
+
+        public void mouseEntered(MouseEvent e) {
+        }
+
+        public void mouseExited(MouseEvent e) {
+        }
+        
+    }
 }

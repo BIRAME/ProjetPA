@@ -1,8 +1,6 @@
 package modele;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class GestionnaireDeFichiers {
 	
@@ -22,18 +20,20 @@ public class GestionnaireDeFichiers {
         return this.fileActuel;
     }
 
-    public ArrayList<File> ListeFiles() {
+    public File[] listeFiles() {
         // cas du démarrage du programme, on démarre sur la racine indépendamment du système
         if (fileActuel == null) {
-            return new ArrayList<File>(Arrays.asList(File.listRoots()));
+            return File.listRoots();
         }
         else {
-            return new ArrayList<File>(Arrays.asList(fileActuel.listFiles()));
+            return fileActuel.listFiles();
         }
     }
     
     public void retourEnArriere() {
-        this.fileActuel = this.fileActuel.getParentFile();
+        if (this.fileActuel != null) {
+            this.fileActuel = this.fileActuel.getParentFile();
+        }
     }
 	
 }
