@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.ListModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import modele.GestionnaireDeFichiers;
@@ -182,16 +183,27 @@ public class Explorer extends JFrame {
         //btnPrecedent.setEnabled(false);
         btnPrecedent.addActionListener(new ActionPrecedent());
         
-        btnSuivant.setActionCommand("nextFolder");
-        btnSuivant.setEnabled(false);
-
+        //btnSuivant.setActionCommand("nextFolder");
+        //btnSuivant.setEnabled(false);
+        btnSuivant.addActionListener(new ActionEnAvant());
     }
 
     class ActionPrecedent implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Action effectuée par ActionPrecedents");
+            System.out.println("Action effectuée par ActionPrecedent");
             gestionnaireDeFichiers.retourEnArriere();
+            listeFile.setListData(gestionnaireDeFichiers.listeFiles());
+        }
+
+    }
+    
+    class ActionEnAvant implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Action effectuée par ActionEnAvant");
+            gestionnaireDeFichiers.retourEnAvant();
+            listeFile.setListData(gestionnaireDeFichiers.listeFiles());
         }
 
     }
@@ -201,8 +213,8 @@ public class Explorer extends JFrame {
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
                 System.out.println("Action effectuée par MouseEventListe");
-                //int index = listeFile.locationToIndex(e.getPoint());
                 gestionnaireDeFichiers.setFileActuel(listeFile.getSelectedValue());
+                listeFile.setListData(gestionnaireDeFichiers.listeFiles());
             }
         }
 

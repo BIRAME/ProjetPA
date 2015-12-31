@@ -1,13 +1,16 @@
 package modele;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class GestionnaireDeFichiers {
 	
     private File fileActuel;
+    private ArrayList<File> listeFileEnAvant;
 
     public void GestionnaireDeFichiers() {
         this.fileActuel = null;
+        this.listeFileEnAvant = new ArrayList<File>();
     }
     
     public void setFileActuel(File f) {
@@ -31,9 +34,15 @@ public class GestionnaireDeFichiers {
     }
     
     public void retourEnArriere() {
-        if (this.fileActuel != null) {
+        if (this.fileActuel != null) {System.out.println("test : " + this.listeFileEnAvant);
+            this.listeFileEnAvant.add(this.fileActuel);
             this.fileActuel = this.fileActuel.getParentFile();
         }
     }
-	
+    
+    public void retourEnAvant() {
+        if (!this.listeFileEnAvant.isEmpty()) {
+            this.fileActuel = this.listeFileEnAvant.remove(this.listeFileEnAvant.size());
+        }
+    }
 }
