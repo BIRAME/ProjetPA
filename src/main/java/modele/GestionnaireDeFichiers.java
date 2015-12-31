@@ -1,14 +1,15 @@
 package modele;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class GestionnaireDeFichiers {
+public class GestionnaireDeFichiers implements Serializable{
 	
     private File fileActuel;
     private ArrayList<File> listeFileEnAvant;
 
-    public void GestionnaireDeFichiers() {
+    public GestionnaireDeFichiers() {
         this.fileActuel = null;
         this.listeFileEnAvant = new ArrayList<File>();
     }
@@ -29,6 +30,11 @@ public class GestionnaireDeFichiers {
             return File.listRoots();
         }
         else {
+            /*File[] listeFile
+            for (int i = 0; i < file{
+                
+                tmp.
+            }*/
             return fileActuel.listFiles();
         }
     }
@@ -42,7 +48,7 @@ public class GestionnaireDeFichiers {
     
     public void retourEnAvant() {
         if (!this.listeFileEnAvant.isEmpty()) {
-            this.fileActuel = this.listeFileEnAvant.remove(this.listeFileEnAvant.size());
+            this.fileActuel = this.listeFileEnAvant.remove(this.listeFileEnAvant.size()-1);
         }
     }
 }
