@@ -10,7 +10,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -21,9 +20,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+
 import modele.GestionnaireDeFichiers;
+import plugins.PluginAnalyseImpl;
 
 public class Explorer extends JFrame {
 
@@ -31,10 +34,8 @@ public class Explorer extends JFrame {
 
     private Container panel = getContentPane();
 
-    ImageIcon imgPrec = new ImageIcon("flechePrecedent.png");
-    ImageIcon imgSuiv = new ImageIcon("flecheSuivant.png");
-    private JButton btnSuivant = new JButton(imgSuiv);
-    private JButton btnPrecedent = new JButton(imgPrec);
+    private JButton btnSuivant = new JButton(">");
+    private JButton btnPrecedent = new JButton("<");
 
     private JMenuBar menu;
     private JMenu menuFichier;
@@ -128,6 +129,7 @@ public class Explorer extends JFrame {
 
         // viewPluginsMenu
         this.menuPluginAnalyse.setText("Plugins d'analyse");
+        this.menuPluginAnalyse.addMenuListener(new AnaylsePlugin());
 
         // desactivatePlugin
         this.menuDesactivePlugin.setText("Désactiver des plugins");
@@ -204,6 +206,29 @@ public class Explorer extends JFrame {
             gestionnaireDeFichiers.retourEnAvant();
             listeFile.setListData(gestionnaireDeFichiers.listeFiles());
         }
+
+    }
+    
+    class AnaylsePlugin implements MenuListener {
+
+		@Override
+		public void menuCanceled(MenuEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void menuDeselected(MenuEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void menuSelected(MenuEvent arg0) {
+			System.out.println(gestionnaireDeFichiers.getFileActuel());
+        	PluginAnalyseImpl pai = new PluginAnalyseImpl();
+        	pai.analyseCurrentFolder(gestionnaireDeFichiers.getFileActuel().getPath());			
+		}
 
     }
     
