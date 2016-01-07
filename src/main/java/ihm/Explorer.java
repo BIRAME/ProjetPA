@@ -9,8 +9,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenu;
@@ -20,8 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -40,14 +42,11 @@ public class Explorer extends JFrame {
     private JMenuBar menu;
     private JMenu menuFichier;
     private JMenu menuPluginVue;
-    private JMenu menuDesactivePlugin;
     private JMenu menuPluginAnalyse;
 
-    private JMenuItem menuItemOuvrir;
     private JMenuItem menuItemPluginCharge;
     private JMenuItem menuItemPluginLancer;
-    private JMenuItem menuItemDesacPluginAnalyse;
-    private JMenuItem menuItemDesacPluginVue;
+    private JMenuItem menuItemPluginAnalyse;
 
     private JPanel topPanel = new JPanel();
     private JPanel panelPrincipal = new JPanel(new BorderLayout());
@@ -55,12 +54,6 @@ public class Explorer extends JFrame {
     private JPanel arbreNavigation = new JPanel(new BorderLayout());
     private JPanel premiereLigne;
     JSplitPane splitPane;
-
-    private JTree myTree;
-    private DefaultTreeModel myModel;
-    private DefaultMutableTreeNode treeNodePrincipal;
-
-    private JScrollPane jscpJTree = new JScrollPane();
     
     private GestionnaireDeFichiers gestionnaireDeFichiers;
     private JScrollPane jspListeFile;
@@ -78,7 +71,6 @@ public class Explorer extends JFrame {
         panel.add(topPanel);
 
         this.createMenu();
-        this.afficherArbreNavigation();
         this.afficherOutils();
 
         premiereLigne = new JPanel(new BorderLayout());
@@ -102,90 +94,43 @@ public class Explorer extends JFrame {
         this.menu = new JMenuBar();
         this.menuFichier = new JMenu();
         this.menuPluginVue = new JMenu();
-        this.menuItemOuvrir = new JMenuItem();
         this.menuItemPluginCharge = new JMenuItem();
         this.menuItemPluginLancer = new JMenuItem();
-        this.menuDesactivePlugin = new JMenu();
-        this.menuItemDesacPluginAnalyse = new JMenuItem();
-        this.menuItemDesacPluginVue = new JMenuItem();
         this.menuPluginAnalyse = new JMenu();
+        this.menuItemPluginAnalyse = new JMenuItem();
 
-        // menuBar
         this.menu.add(this.menuFichier);
         this.menu.add(this.menuPluginVue);
-        this.menu.add(this.menuDesactivePlugin);
         this.menu.add(this.menuPluginAnalyse);
         this.menu.setBackground(Color.gray);
 
-        // fileMenu
         this.menuFichier.setText("Fichier");
-        this.menuFichier.add(this.menuItemOuvrir);
         this.menuFichier.add(this.menuItemPluginCharge);
         this.menuFichier.add(this.menuItemPluginLancer);
         this.menuFichier.addSeparator();
 
-        // viewPluginsMenu
         this.menuPluginVue.setText("Plugins de vue");
 
-        // viewPluginsMenu
         this.menuPluginAnalyse.setText("Plugins d'analyse");
-        this.menuPluginAnalyse.addMenuListener(new AnaylsePlugin());
+        this.menuPluginAnalyse.add(this.menuItemPluginAnalyse);
+        this.menuItemPluginAnalyse.addActionListener(new AnaylsePlugin());
 
-        // desactivatePlugin
-        this.menuDesactivePlugin.setText("Désactiver des plugins");
-        this.menuDesactivePlugin.add(this.menuItemDesacPluginAnalyse);
-        this.menuDesactivePlugin.add(this.menuItemDesacPluginVue);
-
-        // ouvrirMenuItem
-        this.menuItemOuvrir.setText("Ouvrir");
-
-        // loadMenuItem
         this.menuItemPluginCharge.setText("Charger un plugin");
+        this.menuItemPluginCharge.addActionListener(new ChargerPlugins());
 
-        // runPluginsMenuItem
         this.menuItemPluginLancer.setText("Lancer les plugins chargés");
 
-        // desactivateTablePluginItem
-        this.menuItemDesacPluginAnalyse.setText("Plugin d'analyse");
-
-        // Item
-        this.menuItemDesacPluginVue.setText("Plugin de vue");
-
+        this.menuItemPluginAnalyse.setText("Statistiques");
+        
         this.setJMenuBar(this.menu);
-    }
-
-    private void afficherArbreNavigation() {
-
-        treeNodePrincipal = new DefaultMutableTreeNode();
-
-        // Construction du modele de l'arbre.
-        myModel = new DefaultTreeModel(treeNodePrincipal);
-
-        // Construction de l'arbre.
-        myTree = new JTree(myModel);
-
-        // on rend invis
-        myTree.setRootVisible(false);
-
-        jscpJTree.setViewportView(myTree);
-
-        arbreNavigation.add(jscpJTree);
     }
 
     private void afficherOutils() {
 
-        //btnPrecedent.setPreferredSize(new Dimension(40, 40));
         zoneOutils.add(btnPrecedent);
-
-        //btnSuivant.setPreferredSize(new Dimension(40, 40));
         zoneOutils.add(btnSuivant);
 
-        //btnPrecedent.setActionCommand("ancienRep");
-        //btnPrecedent.setEnabled(false);
         btnPrecedent.addActionListener(new ActionPrecedent());
-        
-        //btnSuivant.setActionCommand("nextFolder");
-        //btnSuivant.setEnabled(false);
         btnSuivant.addActionListener(new ActionEnAvant());
     }
 
@@ -209,26 +154,17 @@ public class Explorer extends JFrame {
 
     }
     
-    class AnaylsePlugin implements MenuListener {
+    class AnaylsePlugin implements ActionListener {
 
 		@Override
-		public void menuCanceled(MenuEvent arg0) {
+		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void menuDeselected(MenuEvent arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void menuSelected(MenuEvent arg0) {
 			System.out.println(gestionnaireDeFichiers.getFileActuel());
         	PluginAnalyseImpl pai = new PluginAnalyseImpl();
         	pai.analyseCurrentFolder(gestionnaireDeFichiers.getFileActuel().getPath());			
 		}
+
+		
 
     }
     
@@ -254,5 +190,29 @@ public class Explorer extends JFrame {
         public void mouseExited(MouseEvent e) {
         }
         
+    }
+    
+    class ChargerPlugins implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			JFileChooser dialogue = new JFileChooser(new File("./src/"));
+			PrintWriter sortie = null;
+			File fichier;
+			
+			if (dialogue.showOpenDialog(null)== JFileChooser.APPROVE_OPTION) {
+			    fichier = dialogue.getSelectedFile();
+			    try {
+					sortie = new PrintWriter(new FileWriter(fichier.getPath(), true));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			    
+			    sortie.close();
+			}
+			
+		}
+    	
     }
 }
