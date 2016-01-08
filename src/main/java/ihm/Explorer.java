@@ -27,6 +27,7 @@ import javax.swing.JTree;
 
 import modele.GestionnaireDeFichiers;
 import plugins.PluginAnalyseImpl;
+import plugins.PluginVueImpl;
 import tree.FileTree;
 
 public class Explorer extends JFrame {
@@ -46,6 +47,7 @@ public class Explorer extends JFrame {
 	private JMenuItem menuItemPluginCharge;
 	private JMenuItem menuItemPluginLancer;
 	private JMenuItem menuItemPluginAnalyse;
+	private JMenuItem menuItemPluginVue;
 
 	private JPanel topPanel = new JPanel();
 	private JPanel panelPrincipal = new JPanel(new BorderLayout());
@@ -102,6 +104,7 @@ public class Explorer extends JFrame {
 		this.menuItemPluginLancer = new JMenuItem();
 		this.menuPluginAnalyse = new JMenu();
 		this.menuItemPluginAnalyse = new JMenuItem();
+		this.menuItemPluginVue = new JMenuItem();
 
 		this.menu.add(this.menuFichier);
 		this.menu.add(this.menuPluginVue);
@@ -114,6 +117,8 @@ public class Explorer extends JFrame {
 		this.menuFichier.addSeparator();
 
 		this.menuPluginVue.setText("Plugins de vue");
+		this.menuPluginVue.add(this.menuItemPluginVue);
+		this.menuItemPluginVue.addActionListener(new VuePlugin());
 
 		this.menuPluginAnalyse.setText("Plugins d'analyse");
 		this.menuPluginAnalyse.add(this.menuItemPluginAnalyse);
@@ -125,6 +130,8 @@ public class Explorer extends JFrame {
 		this.menuItemPluginLancer.setText("Lancer les plugins chargés");
 
 		this.menuItemPluginAnalyse.setText("Statistiques");
+		
+		this.menuItemPluginVue.setText("Changer couleur");		
 
 		this.setJMenuBar(this.menu);
 	}
@@ -165,10 +172,21 @@ public class Explorer extends JFrame {
 			// TODO Auto-generated method stub
 			System.out.println(gestionnaireDeFichiers.getFileActuel());
 			PluginAnalyseImpl pai = new PluginAnalyseImpl();
-			pai.analyseCurrentFolder(gestionnaireDeFichiers.getFileActuel()
-					.getPath());
+			pai.analyseCurrentFolder(gestionnaireDeFichiers.getFileActuel().getPath());
 		}
 
+	}
+	
+	class VuePlugin implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			System.out.println("Changer de couleur");
+			PluginVueImpl pvi = new PluginVueImpl();
+			pvi.changeColor(panelPrincipal, zoneOutils, premiereLigne, arbreFichier, menu, jsTreeFile, menuFichier, menuPluginVue, menuPluginAnalyse);
+		}
+		
 	}
 
 	class MouseEventListe implements MouseListener {

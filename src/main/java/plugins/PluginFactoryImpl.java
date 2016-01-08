@@ -9,10 +9,11 @@ public class PluginFactoryImpl implements PluginFactory {
 
 	public PluginFactoryImpl() {
 		createPluginAnalyse();
+		createPluginVue();
 	}
 
 	/**
-	 * Methode qui creer un plugin d'analyse qui consiste a afficher une fenetre
+	 * Methode qui cree un plugin d'analyse qui consiste a afficher une fenetre
 	 * qui indique plusieurs statistique du repertoire courant, sur les
 	 * specificites des fichiers contenus
 	 *
@@ -20,6 +21,15 @@ public class PluginFactoryImpl implements PluginFactory {
 	@Override
 	public PluginAnalyse createPluginAnalyse() {
 		return new PluginAnalyseImpl();
+	}
+
+	/**
+	 * Methode qui cree un plugin de vue qui permet de changer la couleur de
+	 * differents composants
+	 */
+	@Override
+	public PluginVue createPluginVue() {
+		return new PluginVueImpl();
 	}
 
 }

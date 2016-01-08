@@ -7,5 +7,6 @@ package plugins;
 public interface PluginFactory {
 	
 	PluginAnalyse createPluginAnalyse();
+	PluginVue createPluginVue();
 
 }
