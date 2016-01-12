@@ -12,8 +12,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -25,12 +30,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 
+import chargementDinamique.Repository;
 import modele.GestionnaireDeFichiers;
 import plugins.PluginAnalyseImpl;
+import plugins.PluginBase;
+import plugins.PluginVue;
 import plugins.PluginVueImpl;
 import tree.FileTree;
 
 public class Explorer extends JFrame {
+
+	Repository repo = new Repository(new File("./bin"));
 
 	private static final long serialVersionUID = 1L;
 
@@ -60,12 +70,25 @@ public class Explorer extends JFrame {
 	private GestionnaireDeFichiers gestionnaireDeFichiers;
 	private JScrollPane jspListeFile;
 	private JList<File> listeFile;
-	
+
 	private JTree arbreFichier = new FileTree("/").getFileTree();
 	private JScrollPane jsTreeFile;
+	JComboBox jCplugins = new JComboBox<>();
 
 	public Explorer(GestionnaireDeFichiers gdf) {
 
+		List<String> list = repo.parcours(repo.base);
+		List<Class<?>> classesChargees = repo.load();
+		List<Class<?>> listpluginVue = new ArrayList<>() ;
+		for (Class<?> classeChargee : classesChargees) {
+			if (Arrays.asList(classeChargee.getInterfaces()).contains(PluginVue.class)) {
+
+				System.out.println(classeChargee.getName() + " est un PluginVue");
+				listpluginVue.add(classeChargee);
+			}
+		}
+		jCplugins.setModel(new DefaultComboBoxModel<>(listpluginVue.toArray()));
+		System.out.println(classesChargees.size());
 		this.gestionnaireDeFichiers = gdf;
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Explorateur de fichier");
@@ -75,6 +98,7 @@ public class Explorer extends JFrame {
 		topPanel.setLayout(new BorderLayout());
 		panel.add(topPanel);
 
+		panel.add(jCplugins);
 		this.createMenu();
 		this.afficherOutils();
 
@@ -130,8 +154,8 @@ public class Explorer extends JFrame {
 		this.menuItemPluginLancer.setText("Lancer les plugins chargés");
 
 		this.menuItemPluginAnalyse.setText("Statistiques");
-		
-		this.menuItemPluginVue.setText("Changer couleur");		
+
+		this.menuItemPluginVue.setText("Changer couleur");
 
 		this.setJMenuBar(this.menu);
 	}
@@ -176,7 +200,7 @@ public class Explorer extends JFrame {
 		}
 
 	}
-	
+
 	class VuePlugin implements ActionListener {
 
 		@Override
@@ -184,9 +208,10 @@ public class Explorer extends JFrame {
 			// TODO Auto-generated method stub
 			System.out.println("Changer de couleur");
 			PluginVueImpl pvi = new PluginVueImpl();
-			pvi.changeColor(panelPrincipal, zoneOutils, premiereLigne, arbreFichier, menu, jsTreeFile, menuFichier, menuPluginVue, menuPluginAnalyse);
+			pvi.changeColor(panelPrincipal, zoneOutils, premiereLigne, arbreFichier, menu, jsTreeFile, menuFichier,
+					menuPluginVue, menuPluginAnalyse);
 		}
-		
+
 	}
 
 	class MouseEventListe implements MouseListener {
@@ -194,8 +219,7 @@ public class Explorer extends JFrame {
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() == 2) {
 				// System.out.println("Action effectuée par MouseEventListe");
-				gestionnaireDeFichiers.setFileActuel(listeFile
-						.getSelectedValue());
+				gestionnaireDeFichiers.setFileActuel(listeFile.getSelectedValue());
 				listeFile.setListData(gestionnaireDeFichiers.listeFiles());
 			}
 		}
