@@ -12,13 +12,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.Serializable;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -30,233 +26,256 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 
-import chargementDinamique.Repository;
 import modele.GestionnaireDeFichiers;
 import plugins.PluginAnalyseImpl;
-import plugins.PluginBase;
-import plugins.PluginVue;
 import plugins.PluginVueImpl;
+import sauvegarde.SauvegardeEtChargement;
 import tree.FileTree;
 
-public class Explorer extends JFrame {
+public class Explorer extends JFrame implements Serializable {
 
-	Repository repo = new Repository(new File("./bin"));
+    private static final long serialVersionUID = 1L;
+    private transient File fichierSauvegarde;
 
-	private static final long serialVersionUID = 1L;
+    private Container panel;
 
-	private Container panel = getContentPane();
+    private JButton btnSuivant;
+    private JButton btnPrecedent;
 
-	private JButton btnSuivant = new JButton(">");
-	private JButton btnPrecedent = new JButton("<");
+    private JMenuBar menu;
+    private JMenu menuFichier;
+    private JMenu menuPluginVue;
+    private JMenu menuPluginAnalyse;
 
-	private JMenuBar menu;
-	private JMenu menuFichier;
-	private JMenu menuPluginVue;
-	private JMenu menuPluginAnalyse;
+    private JMenuItem menuItemPluginCharge;
+    private JMenuItem menuItemPluginLancer;
+    private JMenuItem menuItemPluginAnalyse;
+    private JMenuItem menuItemPluginVue;
 
-	private JMenuItem menuItemPluginCharge;
-	private JMenuItem menuItemPluginLancer;
-	private JMenuItem menuItemPluginAnalyse;
-	private JMenuItem menuItemPluginVue;
+    private JPanel topPanel;
+    private JPanel panelPrincipal;
+    private JPanel zoneOutils;
+    private JPanel arbreNavigation;
+    private JPanel premiereLigne;
 
-	private JPanel topPanel = new JPanel();
-	private JPanel panelPrincipal = new JPanel(new BorderLayout());
-	private JPanel zoneOutils = new JPanel(new FlowLayout((int) LEFT_ALIGNMENT));
-	private JPanel arbreNavigation = new JPanel(new BorderLayout());
-	private JPanel premiereLigne;
+    private JSplitPane splitPane;
 
-	JSplitPane splitPane;
+    private transient GestionnaireDeFichiers gestionnaireDeFichiers;
+    private JScrollPane jspListeFile;
+    private JList<File> listeFile;
+    
+    private transient FileTree fileTree;
+    private transient JTree arbreFichier;
+    private transient JScrollPane jsTreeFile;
 
-	private GestionnaireDeFichiers gestionnaireDeFichiers;
-	private JScrollPane jspListeFile;
-	private JList<File> listeFile;
+    public Explorer(GestionnaireDeFichiers gdf, File fichierSauvegarde) {
 
-	private JTree arbreFichier = new FileTree("/").getFileTree();
-	private JScrollPane jsTreeFile;
-	JComboBox jCplugins = new JComboBox<>();
+        this.fichierSauvegarde = fichierSauvegarde;
+        this.gestionnaireDeFichiers = gdf;
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setTitle("Explorateur de fichier");
+        this.setSize(800, 600);
+        this.setBackground(Color.GREEN);
+          
+        
+        if (this.fichierSauvegarde != null && this.fichierSauvegarde.length() != 0) {
+            Explorer tmpExp = SauvegardeEtChargement.chargerUnFichier(this.fichierSauvegarde);
+            this.setContentPane(tmpExp.panel);
+            this.panel = this.getContentPane();
+            this.btnSuivant = tmpExp.btnSuivant;
+            this.btnPrecedent = tmpExp.btnPrecedent;
+            this.menu = tmpExp.menu;
+            this.menuFichier = tmpExp.menuFichier;
+            this.menuPluginVue = tmpExp.menuPluginVue;
+            this.menuPluginAnalyse = tmpExp.menuPluginAnalyse;
+            this.menuItemPluginCharge = tmpExp.menuItemPluginCharge;
+            this.menuItemPluginLancer = tmpExp.menuItemPluginLancer;
+            this.menuItemPluginAnalyse = tmpExp.menuItemPluginAnalyse;
+            this.menuItemPluginVue = tmpExp.menuItemPluginVue;
+            this.topPanel = tmpExp.topPanel;
+            this.panelPrincipal = tmpExp.panelPrincipal;
+            this.zoneOutils = tmpExp.zoneOutils;
+            this.arbreNavigation = tmpExp.arbreNavigation;
+            this.premiereLigne = tmpExp.premiereLigne;
+            this.splitPane = tmpExp.splitPane;
+            this.jspListeFile = tmpExp.jspListeFile;
+            this.listeFile = tmpExp.listeFile;
+        } 
+        
+        else {
+            this.panel = this.getContentPane();
+            this.btnSuivant = new JButton(">");
+            this.btnPrecedent = new JButton("<");
+            this.topPanel = new JPanel();
+            this.panelPrincipal = new JPanel(new BorderLayout());
+            this.zoneOutils = new JPanel(new FlowLayout((int) LEFT_ALIGNMENT));
+            this.arbreNavigation = new JPanel(new BorderLayout());
+            premiereLigne = new JPanel(new BorderLayout());
+            topPanel.setLayout(new BorderLayout());
+            this.menu = new JMenuBar();
+            this.menuFichier = new JMenu();
+            this.menuPluginVue = new JMenu();
+            this.menuItemPluginCharge = new JMenuItem();
+            this.menuItemPluginLancer = new JMenuItem();
+            this.menuPluginAnalyse = new JMenu();
+            this.menuItemPluginAnalyse = new JMenuItem();
+            this.menuItemPluginVue = new JMenuItem();
+            splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, arbreNavigation, panelPrincipal);
+            splitPane.setDividerLocation(150);
+            this.listeFile = new JList<File>(this.gestionnaireDeFichiers.listeFiles());
+            this.jspListeFile = new JScrollPane(this.listeFile);
+        }
+        this.fileTree = new FileTree("/");
+        this.arbreFichier = this.fileTree.getFileTree();
+        this.jsTreeFile = new JScrollPane(this.arbreFichier);
+        panel.add(topPanel);
+        this.createMenu();
+        this.afficherOutils();
+        premiereLigne.add(zoneOutils, BorderLayout.WEST);
+        topPanel.add(premiereLigne, BorderLayout.NORTH);
+        this.arbreNavigation.add(this.jsTreeFile);
+        topPanel.add(splitPane);
+        this.listeFile.addMouseListener(new MouseEventListe());
+        this.panelPrincipal.add(this.jspListeFile);
+        
+        this.setVisible(true);
+        
+    }
 
-	public Explorer(GestionnaireDeFichiers gdf) {
+    private void createMenu() {
 
-		List<String> list = repo.parcours(repo.base);
-		List<Class<?>> classesChargees = repo.load();
-		List<Class<?>> listpluginVue = new ArrayList<>() ;
-		for (Class<?> classeChargee : classesChargees) {
-			if (Arrays.asList(classeChargee.getInterfaces()).contains(PluginVue.class)) {
+        this.menu.add(this.menuFichier);
+        this.menu.add(this.menuPluginVue);
+        this.menu.add(this.menuPluginAnalyse);
+        if (this.menu.getBackground().equals(new Color(238,238,238))) {
+            this.menu.setBackground(Color.gray);
+        }
+        this.menuFichier.setText("Fichier");
+        this.menuFichier.add(this.menuItemPluginCharge);
+        this.menuFichier.add(this.menuItemPluginLancer);
+        this.menuFichier.addSeparator();
 
-				System.out.println(classeChargee.getName() + " est un PluginVue");
-				listpluginVue.add(classeChargee);
-			}
-		}
-		jCplugins.setModel(new DefaultComboBoxModel<>(listpluginVue.toArray()));
-		System.out.println(classesChargees.size());
-		this.gestionnaireDeFichiers = gdf;
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("Explorateur de fichier");
-		this.setSize(800, 600);
-		this.setBackground(Color.GREEN);
+        this.menuPluginVue.setText("Plugins de vue");
+        this.menuPluginVue.add(this.menuItemPluginVue);
+        this.menuItemPluginVue.addActionListener(new VuePlugin());
 
-		topPanel.setLayout(new BorderLayout());
-		panel.add(topPanel);
+        this.menuPluginAnalyse.setText("Plugins d'analyse");
+        this.menuPluginAnalyse.add(this.menuItemPluginAnalyse);
+        this.menuItemPluginAnalyse.addActionListener(new AnaylsePlugin());
 
-		panel.add(jCplugins);
-		this.createMenu();
-		this.afficherOutils();
+        this.menuItemPluginCharge.setText("Charger un plugin");
+        this.menuItemPluginCharge.addActionListener(new ChargerPlugins());
 
-		premiereLigne = new JPanel(new BorderLayout());
-		premiereLigne.add(zoneOutils, BorderLayout.WEST);
-		topPanel.add(premiereLigne, BorderLayout.NORTH);
-		arbreNavigation.add(arbreFichier);
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, arbreNavigation, panelPrincipal);
-		splitPane.setDividerLocation(150);
-		topPanel.add(splitPane);
+        this.menuItemPluginLancer.setText("Lancer les plugins chargés");
 
-		this.listeFile = new JList<File>(this.gestionnaireDeFichiers.listeFiles());
-		this.listeFile.addMouseListener(new MouseEventListe());
-		this.jspListeFile = new JScrollPane(this.listeFile);
-		this.jsTreeFile = new JScrollPane(arbreFichier);
-		this.arbreNavigation.add(this.jsTreeFile);
-		this.panelPrincipal.add(this.jspListeFile);
-		this.setVisible(true);
+        this.menuItemPluginAnalyse.setText("Statistiques");
 
-	}
+        this.menuItemPluginVue.setText("Changer couleur");
 
-	private void createMenu() {
-		this.menu = new JMenuBar();
-		this.menuFichier = new JMenu();
-		this.menuPluginVue = new JMenu();
-		this.menuItemPluginCharge = new JMenuItem();
-		this.menuItemPluginLancer = new JMenuItem();
-		this.menuPluginAnalyse = new JMenu();
-		this.menuItemPluginAnalyse = new JMenuItem();
-		this.menuItemPluginVue = new JMenuItem();
+        this.setJMenuBar(this.menu);
+    }
 
-		this.menu.add(this.menuFichier);
-		this.menu.add(this.menuPluginVue);
-		this.menu.add(this.menuPluginAnalyse);
-		this.menu.setBackground(Color.gray);
+    private void afficherOutils() {
+        zoneOutils.add(btnPrecedent);
+        zoneOutils.add(btnSuivant);
 
-		this.menuFichier.setText("Fichier");
-		this.menuFichier.add(this.menuItemPluginCharge);
-		this.menuFichier.add(this.menuItemPluginLancer);
-		this.menuFichier.addSeparator();
+        btnPrecedent.addActionListener(new ActionPrecedent());
+        btnSuivant.addActionListener(new ActionEnAvant());
+    }
 
-		this.menuPluginVue.setText("Plugins de vue");
-		this.menuPluginVue.add(this.menuItemPluginVue);
-		this.menuItemPluginVue.addActionListener(new VuePlugin());
+    private void sauvegarde() {
+        SauvegardeEtChargement.sauvegardeObjet(this, fichierSauvegarde);
+    }
 
-		this.menuPluginAnalyse.setText("Plugins d'analyse");
-		this.menuPluginAnalyse.add(this.menuItemPluginAnalyse);
-		this.menuItemPluginAnalyse.addActionListener(new AnaylsePlugin());
+    class ActionPrecedent implements ActionListener {
 
-		this.menuItemPluginCharge.setText("Charger un plugin");
-		this.menuItemPluginCharge.addActionListener(new ChargerPlugins());
+        public void actionPerformed(ActionEvent e) {
+            //System.out.println("Action effectuée par ActionPrecedent");
+            gestionnaireDeFichiers.retourEnArriere();
+            listeFile.setListData(gestionnaireDeFichiers.listeFiles());
+        }
 
-		this.menuItemPluginLancer.setText("Lancer les plugins chargés");
+    }
 
-		this.menuItemPluginAnalyse.setText("Statistiques");
+    class ActionEnAvant implements ActionListener {
 
-		this.menuItemPluginVue.setText("Changer couleur");
+        public void actionPerformed(ActionEvent e) {
+            // System.out.println("Action effectuée par ActionEnAvant");
+            gestionnaireDeFichiers.retourEnAvant();
+            listeFile.setListData(gestionnaireDeFichiers.listeFiles());
+        }
 
-		this.setJMenuBar(this.menu);
-	}
+    }
 
-	private void afficherOutils() {
+    class AnaylsePlugin implements ActionListener {
 
-		zoneOutils.add(btnPrecedent);
-		zoneOutils.add(btnSuivant);
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO Auto-generated method stub
+            System.out.println(gestionnaireDeFichiers.getFileActuel());
+            PluginAnalyseImpl pai = new PluginAnalyseImpl();
+            pai.analyseCurrentFolder(gestionnaireDeFichiers.getFileActuel().getPath());
+        }
 
-		btnPrecedent.addActionListener(new ActionPrecedent());
-		btnSuivant.addActionListener(new ActionEnAvant());
-	}
+    }
 
-	class ActionPrecedent implements ActionListener {
+    class VuePlugin implements ActionListener {
 
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("Action effectuée par ActionPrecedent");
-			gestionnaireDeFichiers.retourEnArriere();
-			listeFile.setListData(gestionnaireDeFichiers.listeFiles());
-		}
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            // TODO Auto-generated method stub
+            System.out.println("Changer de couleur");
+            PluginVueImpl pvi = new PluginVueImpl();
+            pvi.changeColor(panelPrincipal, zoneOutils, premiereLigne, arbreFichier, menu, jsTreeFile, menuFichier, menuPluginVue, menuPluginAnalyse);
+            sauvegarde();
+        }
 
-	}
+    }
 
-	class ActionEnAvant implements ActionListener {
+    class MouseEventListe implements MouseListener {
 
-		public void actionPerformed(ActionEvent e) {
-			// System.out.println("Action effectuée par ActionEnAvant");
-			gestionnaireDeFichiers.retourEnAvant();
-			listeFile.setListData(gestionnaireDeFichiers.listeFiles());
-		}
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                // System.out.println("Action effectuée par MouseEventListe");
+                gestionnaireDeFichiers.setFileActuel(listeFile
+                        .getSelectedValue());
+                listeFile.setListData(gestionnaireDeFichiers.listeFiles());
+            }
+        }
 
-	}
+        public void mousePressed(MouseEvent e) {
+        }
 
-	class AnaylsePlugin implements ActionListener {
+        public void mouseReleased(MouseEvent e) {
+        }
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			System.out.println(gestionnaireDeFichiers.getFileActuel());
-			PluginAnalyseImpl pai = new PluginAnalyseImpl();
-			pai.analyseCurrentFolder(gestionnaireDeFichiers.getFileActuel().getPath());
-		}
+        public void mouseEntered(MouseEvent e) {
+        }
 
-	}
+        public void mouseExited(MouseEvent e) {
+        }
 
-	class VuePlugin implements ActionListener {
+    }
 
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			// TODO Auto-generated method stub
-			System.out.println("Changer de couleur");
-			PluginVueImpl pvi = new PluginVueImpl();
-			pvi.changeColor(panelPrincipal, zoneOutils, premiereLigne, arbreFichier, menu, jsTreeFile, menuFichier,
-					menuPluginVue, menuPluginAnalyse);
-		}
+    class ChargerPlugins implements ActionListener {
 
-	}
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            JFileChooser dialogue = new JFileChooser(new File("./src/"));
+            PrintWriter sortie = null;
+            File fichier;
 
-	class MouseEventListe implements MouseListener {
+            if (dialogue.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                fichier = dialogue.getSelectedFile();
+                try {
+                    sortie = new PrintWriter(new FileWriter(fichier.getPath(), true));
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                sortie.close();
+            }
 
-		public void mouseClicked(MouseEvent e) {
-			if (e.getClickCount() == 2) {
-				// System.out.println("Action effectuée par MouseEventListe");
-				gestionnaireDeFichiers.setFileActuel(listeFile.getSelectedValue());
-				listeFile.setListData(gestionnaireDeFichiers.listeFiles());
-			}
-		}
-
-		public void mousePressed(MouseEvent e) {
-		}
-
-		public void mouseReleased(MouseEvent e) {
-		}
-
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		public void mouseExited(MouseEvent e) {
-		}
-
-	}
-
-	class ChargerPlugins implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			JFileChooser dialogue = new JFileChooser(new File("./src/"));
-			PrintWriter sortie = null;
-			File fichier;
-
-			if (dialogue.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-				fichier = dialogue.getSelectedFile();
-				try {
-					sortie = new PrintWriter(new FileWriter(fichier.getPath(), true));
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				sortie.close();
-			}
-
-		}
-	}
+        }
+    }
 }

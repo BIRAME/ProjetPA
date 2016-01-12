@@ -11,11 +11,11 @@ import modele.GestionnaireDeFichiers;
 
 public class SauvegardeEtChargement {
     
-    public static void sauvegardeGestionnaireDeFichiers(GestionnaireDeFichiers gdf, File fileSave) {
+    public static void sauvegardeObjet(Object objet, File fileSave) {
         ObjectOutputStream e1;
         try {
             e1 = new ObjectOutputStream(new FileOutputStream(fileSave));
-            e1.writeObject(gdf);
+            e1.writeObject(objet);
             e1.flush();
             e1.close();
         } catch (IOException e) {
@@ -24,7 +24,7 @@ public class SauvegardeEtChargement {
         }
     }
 
-    public static GestionnaireDeFichiers chargerUnFichier(File file) {
+    public static <T> T chargerUnFichier(File file) {
         Object res = null;
         ObjectInputStream obj = null;
         try {
@@ -39,6 +39,6 @@ public class SauvegardeEtChargement {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return (GestionnaireDeFichiers) res;
+        return (T) res;
     }
 }

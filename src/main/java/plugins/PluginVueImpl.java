@@ -61,8 +61,8 @@ public class PluginVueImpl extends DefaultTreeCellRenderer implements PluginVue 
             }
             case 2: {
                 arbreFichier.setBackground(this.couleur);
-                renderer.setBackgroundNonSelectionColor(this.couleur);
-                jsTreeFile.setBackground(this.couleur);
+                //renderer.setBackgroundNonSelectionColor(this.couleur);
+                //jsTreeFile.setBackground(this.couleur);
                 if (this.couleur.getBlue() < 154 && this.couleur.getRed() < 154 && this.couleur.getGreen() < 154) {
                     renderer.setTextNonSelectionColor(Color.white);
                     renderer.setTextSelectionColor(Color.black);

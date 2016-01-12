@@ -28,7 +28,7 @@ public class GestionnaireDeFichiers implements Serializable{
     public void setFileActuel(File f) {
         if (f.isDirectory()){
             this.fileActuel = f;
-            SauvegardeEtChargement.sauvegardeGestionnaireDeFichiers(this, fichierSauvegarde);
+            SauvegardeEtChargement.sauvegardeObjet(this, fichierSauvegarde);
         }
     }
     
@@ -54,14 +54,14 @@ public class GestionnaireDeFichiers implements Serializable{
         if (this.fileActuel != null) {
             this.listeFileEnAvant.add(this.fileActuel);
             this.fileActuel = this.fileActuel.getParentFile();
-            SauvegardeEtChargement.sauvegardeGestionnaireDeFichiers(this, fichierSauvegarde);
+            SauvegardeEtChargement.sauvegardeObjet(this, fichierSauvegarde);
         }
     }
     
     public void retourEnAvant() {
         if (!this.listeFileEnAvant.isEmpty()) {
             this.fileActuel = this.listeFileEnAvant.remove(this.listeFileEnAvant.size()-1);
-            SauvegardeEtChargement.sauvegardeGestionnaireDeFichiers(this, fichierSauvegarde);
+            SauvegardeEtChargement.sauvegardeObjet(this, fichierSauvegarde);
         }
     }
 }
