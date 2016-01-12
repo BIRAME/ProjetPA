@@ -77,7 +77,7 @@ public class Explorer extends JFrame implements Serializable {
         this.setSize(800, 600);
         this.setBackground(Color.GREEN);
           
-        
+        // chargement de l'objet
         if (this.fichierSauvegarde != null && this.fichierSauvegarde.length() != 0) {
             Explorer tmpExp = SauvegardeEtChargement.chargerUnFichier(this.fichierSauvegarde);
             this.setContentPane(tmpExp.panel);
@@ -102,6 +102,7 @@ public class Explorer extends JFrame implements Serializable {
             this.listeFile = tmpExp.listeFile;
         } 
         
+        // 1er démarrage
         else {
             this.panel = this.getContentPane();
             this.btnSuivant = new JButton(">");

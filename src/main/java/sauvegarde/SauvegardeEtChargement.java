@@ -7,10 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import modele.GestionnaireDeFichiers;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SauvegardeEtChargement {
-    
+    // méthode qui permet de sauvegarder n'importe quel objet serializable
     public static void sauvegardeObjet(Object objet, File fileSave) {
         ObjectOutputStream e1;
         try {
@@ -18,27 +19,25 @@ public class SauvegardeEtChargement {
             e1.writeObject(objet);
             e1.flush();
             e1.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        } catch (IOException ex) {
+            Logger.getLogger(SauvegardeEtChargement.class.getName()).log(Level.SEVERE, null, ex);
+        } 
     }
-
+    
+    // méthode qui permet de charger n'importe quel objet contenu dans le fichier
     public static <T> T chargerUnFichier(File file) {
         Object res = null;
         ObjectInputStream obj = null;
         try {
             obj = new ObjectInputStream(new FileInputStream(file));
             res = obj.readObject();
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SauvegardeEtChargement.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(SauvegardeEtChargement.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(SauvegardeEtChargement.class.getName()).log(Level.SEVERE, null, ex);
+        } 
         return (T) res;
     }
 }

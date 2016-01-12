@@ -5,8 +5,8 @@ import modele.GestionnaireDeFichiers;
 
 public class Main {
 
-    /*Mettre le chemin vers le fichier*/
-    static File fichierSave = new File(System.getProperty("user.dir") + "/saveGdp.gdm");
+    // mettre le chemin vers les fichiers
+    static File fichierSave = new File(System.getProperty("user.dir") + "/saveGdf.gdm");
     static File fichierSave2 = new File(System.getProperty("user.dir") + "/saveExp.gdm");
     
     public static void main(String[] args) {

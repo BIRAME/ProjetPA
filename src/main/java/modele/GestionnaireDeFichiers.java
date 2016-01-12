@@ -14,11 +14,13 @@ public class GestionnaireDeFichiers implements Serializable{
 
    public GestionnaireDeFichiers(File fichierSauvegarde) {
         this.fichierSauvegarde = fichierSauvegarde;
+        // chargement de l'objet
         if (this.fichierSauvegarde != null && this.fichierSauvegarde.length() != 0) {
             GestionnaireDeFichiers tmpGdm = SauvegardeEtChargement.chargerUnFichier(this.fichierSauvegarde);
             this.fileActuel = tmpGdm.fileActuel;
             this.listeFileEnAvant = tmpGdm.listeFileEnAvant;
         } 
+        // 1er démarrage
         else {
             this.fileActuel = null;
             this.listeFileEnAvant = new ArrayList<File>();
@@ -42,6 +44,7 @@ public class GestionnaireDeFichiers implements Serializable{
             return File.listRoots();
         }
         else {
+            //tentative de filtrage pour résoudre l'issue #1 mise sur github, mais n'a pas le résultat attendu 
             return fileActuel.listFiles(new FileFilter() {
                 public boolean accept(File pathname) {
                     return pathname.canExecute();
